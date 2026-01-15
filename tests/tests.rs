@@ -1,7 +1,6 @@
-use assert_cmd::prelude::*;
+use assert_cmd::{cargo::cargo_bin_cmd, Command};
 use std::fs;
 use std::path::Path;
-use std::process::Command;
 
 #[test]
 fn cargo_readme_up_to_date() {
@@ -49,7 +48,7 @@ fn assert_snip<P: AsRef<Path>>(cmd: &mut Command, expected_path: P) {
 }
 
 fn wasm_snip() -> Command {
-    let mut cmd = Command::cargo_bin("wasm-snip").unwrap();
+    let mut cmd = cargo_bin_cmd!("wasm-snip");
     cmd.arg(
         Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("tests")
