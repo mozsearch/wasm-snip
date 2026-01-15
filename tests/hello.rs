@@ -1,5 +1,10 @@
 #![cfg(target_arch = "wasm32")]
 
+// SPDX-FileCopyrightText: 2021 Nick Fitzgerald <fitzgen@gmail.com>
+// SPDX-FileCopyrightText: 2021 The Rust and WebAssembly Working Group
+//
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 #[no_mangle]
 pub fn fluxions(x: usize) -> usize {
     unsafe {
