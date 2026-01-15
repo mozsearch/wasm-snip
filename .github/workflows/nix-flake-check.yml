@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2026 Mozilla
+# SPDX-FileContributor: Nicolas Qiu Guichard <nicolas.guichard@kdab.com>
+#
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+
+name: Nix Flake Check
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  nix-flake-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+          fetch-depth: 0
+      - uses: DeterminateSystems/nix-installer-action@v21
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+      - run: nix flake check --keep-going -L
