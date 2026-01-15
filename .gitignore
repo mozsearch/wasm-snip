@@ -6,3 +6,5 @@
 /tests/*.actual
 /target/
 **/*.rs.bk
+/.envrc
+/.direnv/
