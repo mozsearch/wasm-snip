@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2021 Nick Fitzgerald <fitzgen@gmail.com>
+// SPDX-FileCopyrightText: 2021 The Rust and WebAssembly Working Group
+//
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 use assert_cmd::{Command, cargo::cargo_bin_cmd};
 use std::fs;
 use std::path::Path;
