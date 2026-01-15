@@ -21,35 +21,38 @@ fn try_main() -> Result<(), anyhow::Error> {
     let mut opts = wasm_snip::Options::default();
 
     opts.functions = matches
-        .values_of("function")
+        .get_many::<String>("function")
         .map(|fs| fs.map(|f| f.to_string()).collect())
         .unwrap_or(vec![]);
 
     opts.patterns = matches
-        .values_of("pattern")
+        .get_many::<String>("pattern")
         .map(|ps| ps.map(|p| p.to_string()).collect())
         .unwrap_or(vec![]);
 
-    if matches.is_present("snip_rust_fmt_code") {
+    if matches.get_flag("snip_rust_fmt_code") {
         opts.snip_rust_fmt_code = true;
     }
 
-    if matches.is_present("snip_rust_panicking_code") {
+    if matches.get_flag("snip_rust_panicking_code") {
         opts.snip_rust_panicking_code = true;
     }
 
-    if matches.is_present("skip_producers_section") {
+    if matches.get_flag("skip_producers_section") {
         opts.skip_producers_section = true;
     }
 
     let config = walrus_config_from_options(&opts);
-    let path = matches.value_of("input").unwrap();
+    let path = matches
+        .get_one::<String>("input")
+        .map(|s| s.as_str())
+        .unwrap();
     let buf = fs::read(&path).with_context(|| format!("failed to read file {}", path))?;
     let mut module = config.parse(&buf)?;
 
     wasm_snip::snip(&mut module, opts).context("failed to snip functions from wasm module")?;
 
-    if let Some(output) = matches.value_of("output") {
+    if let Some(output) = matches.get_one::<String>("output").map(|s| s.as_str()) {
         module
             .emit_wasm_file(output)
             .with_context(|| format!("failed to emit snipped wasm to {}", output))?;
@@ -71,8 +74,8 @@ fn walrus_config_from_options(options: &wasm_snip::Options) -> walrus::ModuleCon
     config
 }
 
-fn parse_args() -> clap::ArgMatches<'static> {
-    clap::App::new(env!("CARGO_PKG_NAME"))
+fn parse_args() -> clap::ArgMatches {
+    clap::Command::new(env!("CARGO_PKG_NAME"))
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .about(env!("CARGO_PKG_DESCRIPTION"))
@@ -91,46 +94,53 @@ Very helpful when shrinking the size of WebAssembly binaries!
 ",
         )
         .arg(
-            clap::Arg::with_name("output")
-                .short("o")
+            clap::Arg::new("output")
+                .short('o')
                 .long("output")
-                .takes_value(true)
+                .action(clap::ArgAction::Set)
                 .help("The path to write the output wasm file to. Defaults to stdout."),
         )
         .arg(
-            clap::Arg::with_name("input")
+            clap::Arg::new("input")
                 .required(true)
+                .action(clap::ArgAction::Set)
                 .help("The input wasm file containing the function(s) to snip."),
         )
-        .arg(clap::Arg::with_name("function").multiple(true).help(
-            "The specific function(s) to snip. These must match \
-             exactly. Use the -p flag for fuzzy matching.",
-        ))
         .arg(
-            clap::Arg::with_name("pattern")
+            clap::Arg::new("function")
+                .action(clap::ArgAction::Append)
+                .help(
+                    "The specific function(s) to snip. These must match \
+             exactly. Use the -p flag for fuzzy matching.",
+                ),
+        )
+        .arg(
+            clap::Arg::new("pattern")
                 .required(false)
-                .multiple(true)
-                .short("p")
+                .short('p')
                 .long("pattern")
-                .takes_value(true)
+                .action(clap::ArgAction::Append)
                 .help("Snip any function that matches the given regular expression."),
         )
         .arg(
-            clap::Arg::with_name("snip_rust_fmt_code")
+            clap::Arg::new("snip_rust_fmt_code")
                 .required(false)
                 .long("snip-rust-fmt-code")
+                .action(clap::ArgAction::SetTrue)
                 .help("Snip Rust's `std::fmt` and `core::fmt` code."),
         )
         .arg(
-            clap::Arg::with_name("snip_rust_panicking_code")
+            clap::Arg::new("snip_rust_panicking_code")
                 .required(false)
                 .long("snip-rust-panicking-code")
+                .action(clap::ArgAction::SetTrue)
                 .help("Snip Rust's `std::panicking` and `core::panicking` code."),
         )
         .arg(
-            clap::Arg::with_name("skip_producers_section")
+            clap::Arg::new("skip_producers_section")
                 .required(false)
                 .long("skip-producers-section")
+                .action(clap::ArgAction::SetTrue)
                 .help("Do not emit the 'producers' custom section."),
         )
         .get_matches()
