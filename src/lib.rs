@@ -161,7 +161,7 @@ pub fn snip(module: &mut walrus::Module, options: Options) -> Result<(), anyhow:
 
     let names: HashSet<String> = options.functions.iter().cloned().collect();
     let re_set = build_regex_set(options).context("failed to compile regex")?;
-    let to_snip = find_functions_to_snip(&module, &names, &re_set);
+    let to_snip = find_functions_to_snip(module, &names, &re_set);
 
     replace_calls_with_unreachable(module, &to_snip);
     unexport_snipped_functions(module, &to_snip);
@@ -243,10 +243,10 @@ fn replace_calls_with_unreachable(
 
     impl Replacer<'_> {
         fn should_snip_call(&self, instr: &walrus::ir::Instr) -> bool {
-            if let walrus::ir::Instr::Call(walrus::ir::Call { func }) = instr {
-                if self.to_snip.contains(func) {
-                    return true;
-                }
+            if let walrus::ir::Instr::Call(walrus::ir::Call { func }) = instr
+                && self.to_snip.contains(func)
+            {
+                return true;
             }
             false
         }

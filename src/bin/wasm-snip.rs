@@ -18,36 +18,30 @@ fn main() {
 fn try_main() -> Result<(), anyhow::Error> {
     let matches = parse_args();
 
-    let mut opts = wasm_snip::Options::default();
-
-    opts.functions = matches
+    let functions = matches
         .get_many::<String>("function")
         .map(|fs| fs.map(|f| f.to_string()).collect())
-        .unwrap_or(vec![]);
+        .unwrap_or_default();
 
-    opts.patterns = matches
+    let patterns = matches
         .get_many::<String>("pattern")
         .map(|ps| ps.map(|p| p.to_string()).collect())
-        .unwrap_or(vec![]);
+        .unwrap_or_default();
 
-    if matches.get_flag("snip_rust_fmt_code") {
-        opts.snip_rust_fmt_code = true;
-    }
-
-    if matches.get_flag("snip_rust_panicking_code") {
-        opts.snip_rust_panicking_code = true;
-    }
-
-    if matches.get_flag("skip_producers_section") {
-        opts.skip_producers_section = true;
-    }
+    let opts = wasm_snip::Options {
+        functions,
+        patterns,
+        snip_rust_fmt_code: matches.get_flag("snip_rust_fmt_code"),
+        snip_rust_panicking_code: matches.get_flag("snip_rust_panicking_code"),
+        skip_producers_section: matches.get_flag("skip_producers_section"),
+    };
 
     let config = walrus_config_from_options(&opts);
     let path = matches
         .get_one::<String>("input")
         .map(|s| s.as_str())
         .unwrap();
-    let buf = fs::read(&path).with_context(|| format!("failed to read file {}", path))?;
+    let buf = fs::read(path).with_context(|| format!("failed to read file {}", path))?;
     let mut module = config.parse(&buf)?;
 
     wasm_snip::snip(&mut module, opts).context("failed to snip functions from wasm module")?;
