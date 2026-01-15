@@ -1,15 +1,12 @@
 [package]
-authors = ["Nick Fitzgerald <fitzgen@gmail.com>", "The Rust and WebAssembly Working Group"]
+authors = [
+  "Nick Fitzgerald <fitzgen@gmail.com>",
+  "The Rust and WebAssembly Working Group",
+]
 categories = ["wasm"]
 description = "Replace a wasm function with an `unreachable`."
 edition = "2024"
-keywords = [
-    "symbol",
-    "webassembly",
-    "snip",
-    "size",
-    "profiling",
-]
+keywords = ["symbol", "webassembly", "snip", "size", "profiling"]
 license = "Apache-2.0/MIT"
 name = "wasm-snip"
 readme = "./README.md"
