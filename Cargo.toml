@@ -2,7 +2,7 @@
 authors = ["Nick Fitzgerald <fitzgen@gmail.com>", "The Rust and WebAssembly Working Group"]
 categories = ["wasm"]
 description = "Replace a wasm function with an `unreachable`."
-edition = "2018"
+edition = "2024"
 keywords = [
     "symbol",
     "webassembly",
